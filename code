@@ -1,0 +1,136 @@
+import { useState } from 'react'
+import { Button } from "/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "/components/ui/card"
+
+type Question = {
+  question: string
+  options: string[]
+  correctAnswer: string
+  explanation: string
+}
+
+export default function ComputerHistoryQuiz() {
+  const [currentQuestion, setCurrentQuestion] = useState(0)
+  const [score, setScore] = useState(0)
+  const [showExplanation, setShowExplanation] = useState(false)
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
+
+  const questions: Question[] = [
+    {
+      question: "Who invented the first electronic computer?",
+      options: ["Alan Turing", "John von Neumann", "Charles Babbage", "Ada Lovelace"],
+      correctAnswer: "John von Neumann",
+      explanation: "John von Neumann is credited with the design of the first electronic computer, the EDVAC."
+    },
+    {
+      question: "What was the name of the first commercially available personal computer?",
+      options: ["Apple II", "IBM PC", "Commodore PET", "Tandy TRS-80"],
+      correctAnswer: "Apple II",
+      explanation: "The Apple II, released in 1976, was one of the first commercially successful personal computers."
+    },
+    {
+      question: "Which company developed the first microprocessor?",
+      options: ["Intel", "AMD", "Motorola", "Texas Instruments"],
+      correctAnswer: "Intel",
+      explanation: "Intel developed the first microprocessor, the Intel 4004, in 1971."
+    },
+    {
+      question: "What was the name of the first computer mouse?",
+      options: ["Mouse", "Pointing Device", "Trackball", "Xerox Alto Mouse"],
+      correctAnswer: "Xerox Alto Mouse",
+      explanation: "The Xerox Alto Mouse, developed in the 1960s, was the first computer mouse."
+    },
+    {
+      question: "Which programming language was developed by Dennis Ritchie and Ken Thompson?",
+      options: ["Python", "Java", "C", "C++"],
+      correctAnswer: "C",
+      explanation: "C was developed by Dennis Ritchie and Ken Thompson in the early 1970s at Bell Labs."
+    }
+  ]
+
+  const handleAnswer = (selectedOption: string) => {
+    setSelectedAnswer(selectedOption)
+    setShowExplanation(true)
+
+    if (selectedOption === questions[currentQuestion].correctAnswer) {
+      setScore(score + 1)
+    }
+  }
+
+  const nextQuestion = () => {
+    setSelectedAnswer(null)
+    setShowExplanation(false)
+    setCurrentQuestion(currentQuestion + 1)
+  }
+
+  const resetQuiz = () => {
+    setCurrentQuestion(0)
+    setScore(0)
+    setShowExplanation(false)
+    setSelectedAnswer(null)
+  }
+
+  if (currentQuestion >= questions.length) {
+    return (
+      <Card className="w-full max-w-2xl mx-auto mt-8">
+        <CardHeader>
+          <CardTitle className="text-2xl text-center">Quiz Complete!</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-xl text-center">
+            Your final score: {score} out of {questions.length}
+          </p>
+          <div className="text-center">
+            <Button onClick={resetQuiz}>Try Again</Button>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <Card className="w-full max-w-2xl mx-auto mt-8">
+      <CardHeader>
+        <CardTitle className="text-2xl">Computer History Quiz</CardTitle>
+        <p className="text-gray-500">Question {currentQuestion + 1} of {questions.length}</p>
+        <p className="text-gray-500">Score: {score}</p>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <h2 className="text-xl font-semibold">{questions[currentQuestion].question}</h2>
+        <div className="grid grid-cols-1 gap-3">
+          {questions[currentQuestion].options.map((option, index) => (
+            <Button
+              key={index}
+              onClick={() => handleAnswer(option)}
+              variant={
+                showExplanation
+                  ? option === questions[currentQuestion].correctAnswer
+                    ? 'default'
+                    : option === selectedAnswer
+                    ? 'destructive'
+                    : 'outline'
+                  : 'outline'
+              }
+              disabled={showExplanation}
+              className="p-4 text-left"
+            >
+              {option}
+            </Button>
+          ))}
+        </div>
+
+        {showExplanation && (
+          <div className="mt-4 p-4 rounded-lg bg-gray-100">
+            <p className="font-semibold">
+              {selectedAnswer === questions[currentQuestion].correctAnswer ? '✅ Correct!' : '❌ Incorrect!'}
+            </p>
+            <p className="mt-2">{questions[currentQuestion].explanation}</p>
+            <Button onClick={nextQuestion} className="mt-4">
+              Next Question
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
